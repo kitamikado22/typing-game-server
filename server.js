@@ -3,6 +3,9 @@ require('dotenv').config(); // .env ファイルから環境変数を読み込�
 const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
+const bodyParser = require('body-parser');
+const Kuroshiro = require('kuroshiro');
+const KuromojiAnalyzer = require('kuroshiro-analyzer-kuromoji');
 
 // Expressアプリを作成
 const app = express();
@@ -11,6 +14,7 @@ const PORT = 3000; // サーバーを起動するポート番号 (自由に変�
 // 必要な設定
 app.use(cors()); // CORSを許可 (フロントエンドからアクセスできるようにする)
 app.use(express.json()); // POSTリクエストのJSONボディを解析できるようにする
+app.use(bodyParser.json());
 
 const DEEPL_API_KEY = process.env.DEEPL_API_KEY;
 const DEEPL_API_URL = 'https://api-free.deepl.com/v2/translate';
@@ -19,6 +23,49 @@ if (!DEEPL_API_KEY) {
     console.error('エラー: DEEPL_API_KEYが.envファイルに設定されていません。');
     process.exit(1); // サーバーを停止
 }
+
+const kuroshiro = new Kuroshiro();
+let isInitialized = false;
+
+// kuroshiroの初期化
+async function initKuroshiro() {
+    console.log("kuroshiroを初期化中...");
+    await kuroshiro.init(new KuromojiAnalyzer({ 
+        dictPath: require('kuroshiro-analyzer-kuromoji').get("dictPath") 
+    }));
+    isInitialized = true;
+    console.log("kuroshiroの初期化が完了しました。");
+}
+
+// 初期化をバックグラウンドで開始
+initKuroshiro();
+
+// 変換処理のエンドポイント
+app.post('/convert', async (req, res) => {
+    // 初期化が完了しているか確認
+    if (!isInitialized) {
+        return res.status(503).json({ error: "kuroshiroがまだ初期化中です。" });
+    }
+
+    const { text, to = "hiragana" } = req.body;
+
+    if (!text) {
+        return res.status(400).json({ error: "変換対象のテキストが必要です。" });
+    }
+
+    try {
+        const result = await kuroshiro.convert(text, { 
+            to: to, // 'hiragana', 'katakana', 'romaji'
+            mode: "normal" 
+        });
+        
+        // 変換結果をJSONで返す
+        res.json({ original: text, converted: result, format: to });
+    } catch (error) {
+        console.error("変換エラー:", error);
+        res.status(500).json({ error: "サーバー側で変換処理中にエラーが発生しました。", details: error.message });
+    }
+});
 
 // --- 翻訳エンドポイントの作成 ---
 // フロントエンドは '/translate' という住所 (URL) にアクセスしてくる
