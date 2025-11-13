@@ -11,7 +11,7 @@ const KuromojiAnalyzer = require('kuroshiro-analyzer-kuromoji');
 
 // Expressアプリを作成
 const app = express();
-const PORT = 3000; // サーバーを起動するポート番号 (自由に変更可)
+const PORT = process.env.PORT || 3000; // サーバーを起動するポート番号 (自由に変更可)
 
 // 必要な設定
 app.use(cors()); // CORSを許可 (フロントエンドからアクセスできるようにする)
@@ -64,16 +64,16 @@ app.post('/convert', async (req, res) => {
         });
         console.log("Conversion result:", result);
 
-        if (to === "hiragana") {
-            // 句読点などを標準化
-            result = result.replace(/[\s,，、]/g, '、'); // 空白や読点を「、」に
-            result = result.replace(/[.．。]/g, '。'); // ピリオドや句点を「。」に
-            result = result.replace(/[\?!？！]/g, '！'); //
-            result = result.replace(/[\(\)（）]/g, '（'); //
-            // 連続する句読点を一つに
-            result = result.replace(/、+/g, '、');
-            result = result.replace(/。+/g, '。');
-        }
+        // if (to === "hiragana") {
+        //     // 句読点などを標準化
+        //     result = result.replace(/[\s,，、]/g, '、'); // 空白や読点を「、」に
+        //     result = result.replace(/[.．。]/g, '。'); // ピリオドや句点を「。」に
+        //     result = result.replace(/[\?!？！]/g, '！'); //
+        //     result = result.replace(/[\(\)（）]/g, '（'); //
+        //     // 連続する句読点を一つに
+        //     result = result.replace(/、+/g, '、');
+        //     result = result.replace(/。+/g, '。');
+        // }
         
         // 変換結果をJSONで返す
         res.json({ original: text, converted: result, format: to });
