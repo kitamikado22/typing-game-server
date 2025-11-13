@@ -58,6 +58,17 @@ app.post('/convert', async (req, res) => {
             to: to, // 'hiragana', 'katakana', 'romaji'
             mode: "normal" 
         });
+
+        if (to === "hiragana") {
+            // 句読点などを標準化
+            result = result.replace(/[\s,，、]/g, '、'); // 空白や読点を「、」に
+            result = result.replace(/[.．。]/g, '。'); // ピリオドや句点を「。」に
+            result = result.replace(/[\?!？！]/g, '！'); //
+            result = result.replace(/[\(\)（）]/g, '（'); //
+            // 連続する句読点を一つに
+            result = result.replace(/、+/g, '、');
+            result = result.replace(/。+/g, '。');
+        }
         
         // 変換結果をJSONで返す
         res.json({ original: text, converted: result, format: to });
