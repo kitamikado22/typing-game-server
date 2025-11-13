@@ -31,7 +31,7 @@ let isInitialized = false;
 async function initKuroshiro() {
     console.log("kuroshiroを初期化中...");
     await kuroshiro.init(new KuromojiAnalyzer({ 
-        dictPath: require('kuroshiro-analyzer-kuromoji').get("dictPath") 
+        dictPath: require('kuroshiro-analyzer-kuromoji').dictPath
     }));
     isInitialized = true;
     console.log("kuroshiroの初期化が完了しました。");
