@@ -42,6 +42,8 @@ initKuroshiro();
 
 // 変換処理のエンドポイント
 app.post('/convert', async (req, res) => {
+    console.log("Conversion to Hiragana has begun");
+
     // 初期化が完了しているか確認
     if (!isInitialized) {
         return res.status(503).json({ error: "kuroshiroがまだ初期化中です。" });
@@ -58,6 +60,7 @@ app.post('/convert', async (req, res) => {
             to: to, // 'hiragana', 'katakana', 'romaji'
             mode: "normal" 
         });
+        console.log("Conversion result:", result);
 
         if (to === "hiragana") {
             // 句読点などを標準化
@@ -81,6 +84,8 @@ app.post('/convert', async (req, res) => {
 // --- 翻訳エンドポイントの作成 ---
 // フロントエンドは '/translate' という住所 (URL) にアクセスしてくる
 app.post('/translate', async (req, res) => {
+    console.log("Translation request received");
+
     try {
         // 1. フロントエンドから送られてきたテキストを取得
         const textToTranslate = req.body.text;
