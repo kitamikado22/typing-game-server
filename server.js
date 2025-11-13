@@ -3,7 +3,9 @@ require('dotenv').config(); // .env ファイルから環境変数を読み込�
 const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
-const bodyParser = require('body-parser');
+// const bodyParser = require('body-parser');
+
+// Kuroshiro関連
 const Kuroshiro = require('kuroshiro').default;
 const KuromojiAnalyzer = require('kuroshiro-analyzer-kuromoji');
 
@@ -14,7 +16,7 @@ const PORT = 3000; // サーバーを起動するポート番号 (自由に変�
 // 必要な設定
 app.use(cors()); // CORSを許可 (フロントエンドからアクセスできるようにする)
 app.use(express.json()); // POSTリクエストのJSONボディを解析できるようにする
-app.use(bodyParser.json());
+// app.use(bodyParser.json());
 
 const DEEPL_API_KEY = process.env.DEEPL_API_KEY;
 const DEEPL_API_URL = 'https://api-free.deepl.com/v2/translate';
